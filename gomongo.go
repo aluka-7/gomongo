@@ -32,7 +32,7 @@ type goMongo struct {
 
 type GoMongo interface {
 	Config(dsID string) *Config
-	Connection(dsID string) *mongo.Client
+	Connection(dsID string) *mongo.Database
 }
 
 /**
@@ -51,7 +51,7 @@ func (d *goMongo) Config(dsID string) *Config {
 	}
 	return ds
 }
-func (d *goMongo) Connection(dsID string) *mongo.Client {
+func (d *goMongo) Connection(dsID string) *mongo.Database {
 	c := d.Config(dsID)
 	opt := options.Client().ApplyURI(c.Uri)
 	ctx, cancel := context.WithTimeout(context.Background(), time.Duration(c.TimeOut))
@@ -67,7 +67,7 @@ func (d *goMongo) Connection(dsID string) *mongo.Client {
 	if err = client.Ping(context.Background(), readpref.Primary()); err != nil {
 		panic(fmt.Sprintf("mongo连接ping错误%+v", err))
 	}
-	return client.Database(c.Database).Client()
+	return client.Database(c.Database)
 }
 
 /**

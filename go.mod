@@ -4,12 +4,15 @@ go 1.19
 
 require (
 	github.com/aluka-7/configuration v1.0.1
-	github.com/aluka-7/utils v1.0.1
+	github.com/aluka-7/utils v1.0.2
 	github.com/rs/zerolog v1.27.0
 	go.mongodb.org/mongo-driver v1.11.2
 )
 
 require (
+	github.com/aluka-7/common v1.0.1 // indirect
+	github.com/gogo/protobuf v1.3.2 // indirect
+	github.com/golang/protobuf v1.5.2 // indirect
 	github.com/golang/snappy v0.0.1 // indirect
 	github.com/klauspost/compress v1.13.6 // indirect
 	github.com/mattn/go-colorable v0.1.12 // indirect
@@ -25,4 +28,5 @@ require (
 	golang.org/x/sync v0.0.0-20210220032951-036812b2e83c // indirect
 	golang.org/x/sys v0.0.0-20210927094055-39ccf1dd6fa6 // indirect
 	golang.org/x/text v0.3.7 // indirect
+	google.golang.org/protobuf v1.26.0 // indirect
 )
