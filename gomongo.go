@@ -15,8 +15,13 @@ import (
 )
 
 type Config struct {
-	Uri     string `json:"uri"`
-	TimeOut int64  `json:"timeOut"`
+	Uri             string `json:"uri"`             // 连接uri
+	Database        string `json:"database"`        // 数据库
+	MaxPoolSize     uint64 `json:"maxPoolSize"`     // 连接池最大连接数
+	MinPoolSize     uint64 `json:"minPoolSize"`     // 连接池最小连接数
+	MaxConnecting   uint64 `json:"maxConnecting"`   // 连接池可以同时建立的最大连接数
+	MaxConnIdleTime uint64 `json:"maxConnIdleTime"` // 连接最大空闲时间
+	TimeOut         int64  `json:"timeOut"`
 }
 
 type goMongo struct {
@@ -48,18 +53,21 @@ func (d *goMongo) Config(dsID string) *Config {
 }
 func (d *goMongo) Connection(dsID string) *mongo.Client {
 	c := d.Config(dsID)
-	o := options.Client().ApplyURI(c.Uri)
+	opt := options.Client().ApplyURI(c.Uri)
 	ctx, cancel := context.WithTimeout(context.Background(), time.Duration(c.TimeOut))
 	defer cancel()
-	// todo 连接参数option
-	client, err := mongo.Connect(ctx, o)
+	opt.SetMaxPoolSize(c.MaxPoolSize)
+	opt.SetMinPoolSize(c.MinPoolSize)
+	opt.SetMaxConnecting(c.MaxConnecting)
+	opt.SetMaxConnIdleTime(time.Duration(c.MaxConnIdleTime))
+	client, err := mongo.Connect(ctx, opt)
 	if err != nil {
 		panic(fmt.Sprintf("初始化mongo引擎出错%+v", err))
 	}
 	if err = client.Ping(context.Background(), readpref.Primary()); err != nil {
 		panic(fmt.Sprintf("mongo连接ping错误%+v", err))
 	}
-	return client
+	return client.Database(c.Database).Client()
 }
 
 /**
