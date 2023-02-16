@@ -7,6 +7,7 @@ import (
 	"github.com/aluka-7/configuration/backends"
 	"github.com/aluka-7/gomongo"
 	"github.com/aluka-7/gomongo/base"
+	"github.com/aluka-7/gomongo/search"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"testing"
@@ -19,8 +20,16 @@ func TestGomongo(t *testing.T) {
 	}})
 
 	db := gomongo.Engine(conf, "1000").Connection("")
-	br := base.NewBaseRepository(db, nil)
+	br := base.NewBaseRepository(db, map[string]search.Filter{
+		// 检索
+		"name": {FieldName: "name", Operator: search.EQ},
+		"age":  {FieldName: "age", Operator: search.LTE},
+
+		// 排序
+		"ageSort": {FieldName: "age"},
+	})
 	ctx := context.Background()
+
 	// insert
 	insertedID, err := br.Save(ctx, "test", struct {
 		Name  string `bson:"name"`
@@ -60,8 +69,12 @@ func TestGomongo(t *testing.T) {
 	}
 	t.Logf("Read Row: %v", bean)
 
+	// query
 	var (
-		cq   = common.Query{}
+		cq = common.Query{
+			PageSize: 5,
+			Page:     1,
+		}
 		list []struct {
 			Id    primitive.ObjectID `bson:"_id"`
 			Name  string             `bson:"name"`
@@ -69,6 +82,14 @@ func TestGomongo(t *testing.T) {
 			Email string             `bson:"email"`
 		}
 	)
+	cq.Sorted = append(cq.Sorted, struct {
+		Id   string `json:"id"`
+		Desc bool   `json:"desc"`
+	}{Id: "ageSort", Desc: true})
+	cq.Filtered = append(cq.Filtered, struct {
+		Id    string      `json:"id"`
+		Value interface{} `json:"value"`
+	}{Id: "age", Value: 10})
 	page, err := br.Query(ctx, cq, "test", &list)
 	if err != nil {
 		t.Errorf("Query Error: %e", err)

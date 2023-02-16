@@ -12,8 +12,6 @@ const (
 	LTE
 	IN
 	NI
-	IsNull
-	Exists
 )
 
 type Filter struct {

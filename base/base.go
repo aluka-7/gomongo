@@ -41,7 +41,7 @@ func (b BaseRepository) ReadById(ctx context.Context, collection string, id, bea
 func (b BaseRepository) Query(ctx context.Context, cq common.Query, collection string, list interface{}) (page *common.Pagination, err error) {
 	query := search.NewQuery(cq)
 	filter := query.MarkFiltered(b.column)
-	option := query.MarkSortPage(b.column)
+	option := query.MarkSort(b.column)
 	page = query.MarkPage()
 	limit, skip := page.Limit()
 	option.SetLimit(int64(limit))

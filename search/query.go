@@ -14,7 +14,7 @@ type Query struct {
 func NewQuery(query common.Query) Query {
 	return Query{query}
 }
-func (sp Query) MarkSortPage(column map[string]Filter) (option *options.FindOptions) {
+func (sp Query) MarkSort(column map[string]Filter) (option *options.FindOptions) {
 	option = options.Find()
 	if len(sp.Sorted) > 0 {
 		for _, v := range sp.Sorted {
@@ -50,10 +50,6 @@ func (sp Query) MarkFiltered(column map[string]Filter) bson.D {
 					filter = append(filter, bson.E{k.FieldName, bson.M{"$in": v.Value}})
 				case NI:
 					filter = append(filter, bson.E{k.FieldName, bson.M{"$nin": v.Value}})
-				case IsNull:
-					filter = append(filter, bson.E{k.FieldName, bson.M{"$ifNull": v.Value}})
-				case Exists:
-					filter = append(filter, bson.E{k.FieldName, bson.M{"$exists": v.Value}})
 				default:
 					filter = append(filter, bson.E{k.FieldName, bson.M{"$eq": v.Value}})
 				}
